@@ -3,6 +3,7 @@ import sequelize from "../Models/connect.js";
 
 import { responseData } from "../Configs/Respone.js";
 import like_res from "../Models/like_res.js";
+import { decodeToken } from "../Configs/jwt.js";
 
 let model = initModels(sequelize);
 
@@ -43,7 +44,11 @@ export const getCountLikeByRes = async (req, res) => {
 };
 export const likeRes = async (req, res) => {
   try {
-    const { res_id, user_id } = req.body;
+    let { token } = req.headers;
+    let dToken = decodeToken(token);
+    let { user_id } = dToken.data;
+
+    const { res_id } = req.body;
     const existingLike = await model.like_res.findOne({
       where: {
         user_id,
@@ -68,7 +73,12 @@ export const likeRes = async (req, res) => {
 
 export const unlikeRes = async (req, res) => {
   try {
-    const { user_id, res_id } = req.body;
+    let { token } = req.headers;
+    // giải mã => object giống bên trang jwt.io
+    let dToken = decodeToken(token);
+
+    let { user_id } = dToken.data;
+    const { res_id } = req.body;
 
     const data = await model.like_res.destroy({
       where: { user_id, res_id },
@@ -87,8 +97,13 @@ export const unlikeRes = async (req, res) => {
 };
 
 export const rateRes = async (req, res) => {
-  try {
-    const { user_id, res_id, amount } = req.body;
+  // try {
+    let { token } = req.headers;
+    // giải mã => object giống bên trang jwt.io
+    let dToken = decodeToken(token);
+
+    let { user_id } = dToken.data;
+    const { res_id, amount } = req.body;
     const existingRate = await model.rate_res.findOne({
       where: { user_id, res_id },
     });
@@ -111,7 +126,7 @@ export const rateRes = async (req, res) => {
 
     await model.rate_res.create(newRate);
     responseData(res, newRate, "Thành công", 200);
-  } catch {
-    responseData(res, "Lỗi server", "", 500);
-  }
+  // } catch {
+  //   responseData(res, "Lỗi server", "", 500);
+  // }
 };
