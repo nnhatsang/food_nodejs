@@ -7,6 +7,6 @@ import {
 
 export const userRoutes = express.Router();
 
-userRoutes.get("/liked-res/:user_id", getlistUserLikeRes);
-userRoutes.get("/order/:user_id", getUserOrders);
+userRoutes.get("/liked-res", getlistUserLikeRes);
+userRoutes.get("/order", getUserOrders);
 userRoutes.post("/order", placeOrder);

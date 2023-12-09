@@ -97,7 +97,7 @@ export const unlikeRes = async (req, res) => {
 };
 
 export const rateRes = async (req, res) => {
-  // try {
+  try {
     let { token } = req.headers;
     // giải mã => object giống bên trang jwt.io
     let dToken = decodeToken(token);
@@ -126,7 +126,7 @@ export const rateRes = async (req, res) => {
 
     await model.rate_res.create(newRate);
     responseData(res, newRate, "Thành công", 200);
-  // } catch {
-  //   responseData(res, "Lỗi server", "", 500);
-  // }
+  } catch {
+    responseData(res, "Lỗi server", "", 500);
+  }
 };
