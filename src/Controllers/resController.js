@@ -43,25 +43,75 @@ export const getCountLikeByRes = async (req, res) => {
 };
 export const likeRes = async (req, res) => {
   try {
-    let { res_id, user_id } = req.body;
-    let data = await model.like_res.findOne({
+    const { res_id, user_id } = req.body;
+    const existingLike = await model.like_res.findOne({
       where: {
         user_id,
         res_id,
       },
     });
-    if (data) {
-      responseData(res, data, "Da like nha hang", 400);
-    } else {
-      let newLike = await like_res.create({
-        user_id,
-        like_res: "1",
-        date_like: new Date(),
-        timestamp: new Date(),
-      });
-      responseData(res, newLike, "Thanh cong", 200);
+
+    if (existingLike) {
+      return res.status(400).json({ message: "Đã like nhà hàng này trước đó" });
     }
+    const newLike = {
+      user_id,
+      res_id,
+      date_like: new Date(),
+    };
+    await model.like_res.create(newLike);
+    responseData(res, data, "Thanh cong", 200);
   } catch {
     responseData(res, "Lỗi ...", "", 500);
+  }
+};
+
+export const unlikeRes = async (req, res) => {
+  try {
+    const { user_id, res_id } = req.body;
+
+    const data = await model.like_res.destroy({
+      where: { user_id, res_id },
+    });
+
+    if (data === 0) {
+      return res
+        .status(400)
+        .json({ message: "Người dùng chưa thích nhà hàng này" });
+    }
+
+    responseData(res, data, "Thanh cong", 200);
+  } catch {
+    responseData(res, "Lỗi ...", "", 500);
+  }
+};
+
+export const rateRes = async (req, res) => {
+  try {
+    const { user_id, res_id, amount } = req.body;
+    const existingRate = await model.rate_res.findOne({
+      where: { user_id, res_id },
+    });
+
+    if (existingRate) {
+      return responseData(
+        res,
+        "",
+        "Người dùng đã đánh giá nhà hàng này trước đó",
+        400
+      );
+    }
+
+    const newRate = {
+      user_id,
+      res_id,
+      amount,
+      date_rate: new Date(),
+    };
+
+    await model.rate_res.create(newRate);
+    responseData(res, newRate, "Thành công", 200);
+  } catch {
+    responseData(res, "Lỗi server", "", 500);
   }
 };
